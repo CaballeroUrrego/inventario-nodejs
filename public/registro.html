@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registro de Usuario</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f3f3f3;
+      padding: 30px;
+    }
+    form {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Registro de Usuario</h2>
+  <form id="form-registro">
+    <input type="text" name="nombre" placeholder="Nombre" required />
+    <input type="email" name="correo" placeholder="Correo electrónico" required />
+    <input type="password" name="contraseña" placeholder="Contraseña" required />
+    <select name="rol">
+      <option value="usuario">Usuario</option>
+      <option value="admin">Administrador</option>
+    </select>
+    <button type="submit">Registrar</button>
+    <p id="mensaje"></p>
+  </form>
+
+  <script>
+    const form = document.getElementById('form-registro');
+    const mensaje = document.getElementById('mensaje');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        nombre: form.nombre.value,
+        correo: form.correo.value,
+        contraseña: form.contraseña.value,
+        rol: form.rol.value
+      };
+
+      try {
+        const res = await fetch('http://localhost:3000/api/usuarios/registro', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        mensaje.textContent = result.mensaje || result.error;
+        mensaje.style.color = res.ok ? 'green' : 'red';
+      } catch (error) {
+        mensaje.textContent = 'Error al conectar con el servidor';
+        mensaje.style.color = 'red';
+      }
+    });
+  </script>
+</body>
+</html>
