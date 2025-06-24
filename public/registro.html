@@ -3,27 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>Registro de Usuario</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #f3f3f3;
-      padding: 30px;
-    }
-    form {
-      max-width: 400px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="css/Estilos.css" />
+<link rel="shortcut icon" href="/public/img/logo.svg" type="image/x-icon">
 </head>
 <body>
+  <img src="img/logo.svg" alt="Logo" class="logo">
   <h2>Registro de Usuario</h2>
   <form id="form-registro">
     <input type="text" name="nombre" placeholder="Nombre" required />
@@ -37,36 +21,59 @@
     <p id="mensaje"></p>
   </form>
 
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <p id="modal-text"></p>
+      <button id="cerrar-modal">Cerrar</button>
+    </div>
+  </div>
+
   <script>
-    const form = document.getElementById('form-registro');
-    const mensaje = document.getElementById('mensaje');
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('form-registro');
+      const mensaje = document.getElementById('mensaje');
+      const modal = document.getElementById('modal');
+      const modalText = document.getElementById('modal-text');
+      const cerrarModalBtn = document.getElementById('cerrar-modal');
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        mensaje.textContent = '';
 
-      const data = {
-        nombre: form.nombre.value,
-        correo: form.correo.value,
-        contraseña: form.contraseña.value,
-        rol: form.rol.value
-      };
+        const data = {
+          nombre: form.nombre.value,
+          correo: form.correo.value,
+          contraseña: form.contraseña.value,
+          rol: form.rol.value
+        };
 
-      try {
-        const res = await fetch('http://localhost:3000/api/usuarios/registro', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
+        try {
+          const res = await fetch('/api/usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
 
-        const result = await res.json();
-        mensaje.textContent = result.mensaje || result.error;
-        mensaje.style.color = res.ok ? 'green' : 'red';
-      } catch (error) {
-        mensaje.textContent = 'Error al conectar con el servidor';
-        mensaje.style.color = 'red';
-      }
+          const result = await res.json();
+
+          if (res.ok) {
+            mensaje.textContent = result.mensaje;
+            mensaje.style.color = 'green';
+            form.reset();
+          } else {
+            modalText.textContent = result.error || 'Error al registrar';
+            modal.style.display = 'flex';
+          }
+        } catch (err) {
+          modalText.textContent = 'Error al conectar con el servidor';
+          modal.style.display = 'flex';
+        }
+      });
+
+      cerrarModalBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
     });
   </script>
 </body>
